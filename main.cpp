@@ -172,33 +172,18 @@ void step_euler(NBodyState& S, const Config& cfg) {
     }
 }
 
-// --- write one TSV line: N then each particle's (m, x y z, vx vy vz, fx fy fz) ---
-// Print positions centered on the Sun and scaled to gigameters (Gm = 1e9 m).
-// Velocities left in m/s (or switch to km/s by dividing by 1e3 below).
-void write_state_tsv(const NBodyState& S, std::ostream& out) {
-    const double POS_SCALE = 1e9; // 1e9 m => values ~ 0..150 for Earth-Sun (fits chart)
-    // const double VEL_SCALE = 1e3; // uncomment to print km/s instead of m/s
+void write_state_tsv(const NBodyState& S) {
 
-    // Center on the Sun (particle 0) so scene doesn't drift off frame
-    Vec3 c = S.p[0].pos;
+    std::cout << S.size() << '\t';
 
-    out << S.size();
-    out << std::setprecision(12);
-    for (const auto& b : S.p) {
-        double px = (b.pos.x - c.x) / POS_SCALE;
-        double py = (b.pos.y - c.y) / POS_SCALE;
-        double pz = (b.pos.z - c.z) / POS_SCALE;
-
-        // If you want km/s, use (b.vel.x / VEL_SCALE). Keeping m/s is fine for plot.py.
-        out << '\t' << b.m
-            << '\t' << px << '\t' << py << '\t' << pz
-            << '\t' << b.vel.x << '\t' << b.vel.y << '\t' << b.vel.z
-            << '\t' << b.force.x << '\t' << b.force.y << '\t' << b.force.z;
+    for (size_t i=0; i<S.size(); ++i) {
+        std::cout<<S.p[i].m<<'\t';
+        std::cout<<S.p[i].pos.x<<'\t'<<S.p[i].pos.y<<'\t'<<S.p[i].pos.z<<'\t';
+        std::cout<<S.p[i].vel.x<<'\t'<<S.p[i].vel.y<<'\t'<<S.p[i].vel.z<<'\t';
+        std::cout<<S.p[i].force.x<<'\t'<<S.p[i].force.y<<'\t'<<S.p[i].force.z<<'\t';
     }
-    out << '\n';
+    cout << '\n';
 }
-
-
 
 int main(int argc, char** argv) {
     ios::sync_with_stdio(false);
@@ -245,7 +230,7 @@ int main(int argc, char** argv) {
 
 
     compute_forces(S, cfg, omp);
-    write_state_tsv(S, cout);
+    write_state_tsv(S);
 
     for (int step=1; step<=cfg.steps; ++step) {
         // 1) forces at current positions
@@ -256,7 +241,7 @@ int main(int argc, char** argv) {
         if (step % cfg.dump_every == 0) {
             // recompute forces for logging (forces correspond to printed state)
             compute_forces(S, cfg, omp);
-            write_state_tsv(S, cout);
+            write_state_tsv(S);
         }
     }
     return 0;
