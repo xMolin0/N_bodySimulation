@@ -52,22 +52,52 @@ struct NBodyState {
         }
     }
 
-    // --- init: Sun–Earth–Moon (rough numbers) ---
+
     void init_sem() {
-        resize(3);
-        // masses (kg)
-        p[0].m = 1.98847e30; // Sun
-        p[1].m = 5.9722e24;  // Earth
-        p[2].m = 7.342e22;   // Moon
-        // positions (m)
-        p[0].pos = {0,0,0};
-        p[1].pos = {1.496e11, 0, 0};
-        p[2].pos = {1.496e11 + 3.844e8, 0, 0};
-        // velocities (m/s) approx tangential
-        p[0].vel = {0,0,0};
-        p[1].vel = {0, 29780, 0};
-        p[2].vel = {0, 29780 + 1022, 0};
-        for (auto &b : p) b.force = {0,0,0};
+        enum Planets {SUN, MERCURY, VENUS, EARTH, MARS, JUPITER, SATURN, URANUS, NEPTUNE, MOON};
+        resize(10);
+
+        // Masses in kg
+        p[SUN].m = 1.9891 * std::pow(10, 30);
+        p[MERCURY].m = 3.285 * std::pow(10, 23);
+        p[VENUS].m = 4.867 * std::pow(10, 24);
+        p[EARTH].m = 5.972 * std::pow(10, 24);
+        p[MARS].m = 6.39 * std::pow(10, 23);
+        p[JUPITER].m = 1.898 * std::pow(10, 27);
+        p[SATURN].m = 5.683 * std::pow(10, 26);
+        p[URANUS].m = 8.681 * std::pow(10, 25);
+        p[NEPTUNE].m = 1.024 * std::pow(10, 26);
+        p[MOON].m = 7.342 * std::pow(10, 22);
+
+        // Positions (in meters) and velocities (in m/s)
+        double AU = 1.496 * std::pow(10, 11); // Astronomical Unit
+
+        p[SUN].pos     = {0, 0, 0};
+        p[MERCURY].pos = {0.39 * AU, 0, 0};
+        p[VENUS].pos   = {0.72 * AU, 0, 0};
+        p[EARTH].pos   = {1.0 * AU,  0, 0};
+        p[MARS].pos    = {1.52 * AU, 0, 0};
+        p[JUPITER].pos = {5.20 * AU, 0, 0};
+        p[SATURN].pos  = {9.58 * AU, 0, 0};
+        p[URANUS].pos  = {19.22 * AU, 0, 0};
+        p[NEPTUNE].pos = {30.05 * AU, 0, 0};
+        p[MOON].pos    = {1.0 * AU + 3.844e8, 0, 0}; // offset from Earth
+
+        // Velocities (m/s) — roughly tangential orbital speeds
+        p[SUN].vel     = {0, 0, 0};
+        p[MERCURY].vel = {0, 47870, 0};
+        p[VENUS].vel   = {0, 35020, 0};
+        p[EARTH].vel   = {0, 29780, 0};
+        p[MARS].vel    = {0, 24130, 0};
+        p[JUPITER].vel = {0, 13070, 0};
+        p[SATURN].vel  = {0, 9680,  0};
+        p[URANUS].vel  = {0, 6800,  0};
+        p[NEPTUNE].vel = {0, 5430,  0};
+        p[MOON].vel    = {0, 29780 + 1022, 0}; // Moon relative to Earth
+
+        // Initialize forces to zero
+        for (auto &b : p)
+            b.force = {0, 0, 0};
     }
 
 
