@@ -14,7 +14,9 @@ $(TARGET): $(SRC)
 	$(CXX) $(CXXFLAGS) $(SRC) -o $(TARGET)
 
 run: $(TARGET)
-	./$(TARGET) 1000 1 10000 10 > solar.tsv
+	date
+	./$(TARGET) sem 200 5000000 1000 > solar.tsv
+	date
 	python3 plot.py solar.tsv solar.pdf 10000
 
 clean:
