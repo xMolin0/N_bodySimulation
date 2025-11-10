@@ -15,7 +15,7 @@ $(TARGET): $(SRC)
 
 run: $(TARGET)
 	date
-	./$(TARGET) sem 200 5000000 1000 > solar.tsv
+	./$(TARGET) sem 200 5000000 10000 > solar.tsv
 	date
 	python3 plot.py solar.tsv solar.pdf 10000
 
