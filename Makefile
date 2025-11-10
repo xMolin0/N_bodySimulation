@@ -1,7 +1,7 @@
 # Makefile for N-Body Simulation
 
-CXX = g++
-CXXFLAGS = -O2 -std=c++17 -Wall
+CXX = g++-15
+CXXFLAGS = -O2 -std=c++17 -Wall -fopenmp
 
 TARGET = nbody
 SRC = main.cpp
@@ -14,7 +14,7 @@ $(TARGET): $(SRC)
 	$(CXX) $(CXXFLAGS) $(SRC) -o $(TARGET)
 
 run: $(TARGET)
-	./$(TARGET) 1000 1 10000 10 > solar.tsv
+	./$(TARGET) sem 100 1000 10 > solar.tsv
 	python3 plot.py solar.tsv solar.pdf 10000
 
 clean:
