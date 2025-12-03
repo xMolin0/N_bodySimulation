@@ -9,4 +9,6 @@ add_executable(N_bodySimulation
         tooling/omp_tasking.hpp
         tooling/seq_loop.hpp
         tooling/seq_tasking.hpp
+        src/cudaNBody.cpp
+        src/cudaNBody.cpp
 )

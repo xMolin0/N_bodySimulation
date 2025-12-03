@@ -212,7 +212,7 @@ void random_init(simulation& s) {
 }
 
 int main(int argc, char* argv[]) {
-    if (argc != 5) {
+    if (argc != 6) {
         std::cerr
           <<"usage: "<<argv[0]<<" <input> <dt> <nbstep> <printevery>"<<"\n"
           <<"input can be:"<<"\n"
@@ -225,6 +225,7 @@ int main(int argc, char* argv[]) {
     double dt = std::atof(argv[2]); //in seconds
     size_t steps = std::atol(argv[3]);
     size_t printevery = std::atol(argv[4]);
+    int block = std::atol(argv[5]);
 
 
     simulation s(1);
@@ -243,13 +244,8 @@ int main(int argc, char* argv[]) {
     }
 
 
-
-
-
-    int block = 256;
     int grid = (N + block - 1) / block;
-
-    for (int step = 0; step < steps; step++) {
+    for (__uint32_t step = 0; step < steps; step++) {
         if (step % printevery == 0) dump_state(s, N);
 
         reset_forces<<<grid, block>>>(s.d_fx, s.d_fy, s.d_fz, N);
