@@ -10,7 +10,7 @@ module load cuda/12.4
 # Build the GPU version (optional)
 make cuda
 
-# === ACTUAL COMMAND TO EXECUTE ===
+# === ACTUAL COMMAND TO EXECUTE CUDA ===
 date
-./nbody_cuda 10000 200 5000000 10000 > solar_cuda.out
+./nbody_cuda 10000 200 5000000 10000 256 > solar_cuda.out
 date

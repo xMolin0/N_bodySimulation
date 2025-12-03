@@ -18,7 +18,7 @@ CPU_TARGET = nbody_omp
 GPU_TARGET = nbody_cuda
 
 CPU_SRC = src/main.cpp
-GPU_SRC = src/cudaNBody.cpp
+GPU_SRC = src/cudaNBody.cu
 
 .PHONY: all omp cuda clean run_omp run_cuda srun_cuda
 
