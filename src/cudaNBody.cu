@@ -237,7 +237,7 @@ int main(int argc, char* argv[]) {
 
     if (std::atol(argv[1]) > 0) {
         random_init(s);
-    } else if ( argv[1] == "planet") {
+    } else if (std::string(argv[1]) == "planet") {
         init_solar(s);
     }
 
