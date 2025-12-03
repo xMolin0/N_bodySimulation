@@ -4,7 +4,7 @@ project(N_bodySimulation)
 set(CMAKE_CXX_STANDARD 20)
 
 add_executable(N_bodySimulation
-        src/main.cpp
+        src/ompNBody.cpp
         tooling/omp_loop.hpp
         tooling/omp_tasking.hpp
         tooling/seq_loop.hpp
