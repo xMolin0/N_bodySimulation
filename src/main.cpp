@@ -8,6 +8,9 @@
 #include <random>
 #include <iomanip>
 
+
+#include "../tooling/omp_loop.hpp"
+
 using namespace std;
 
 struct Vec3 {
@@ -48,6 +51,7 @@ struct NBodyState {
             b.force = {0,0,0};
         }
     }
+
 
     void init_sem() {
         enum Planets {SUN, MERCURY, VENUS, EARTH, MARS, JUPITER, SATURN, URANUS, NEPTUNE, MOON};
@@ -141,8 +145,7 @@ static inline Vec3 mul(const Vec3&a,double s){ return {a.x*s,a.y*s,a.z*s}; }
 
 static inline double norm2(const Vec3& v){ return v.x*v.x + v.y*v.y + v.z*v.z; }
 
-// --- compute forces (O(N^2)) ---
-void compute_forces(NBodyState& S, const Config& cfg) {
+void compute_forces(NBodyState& S, const Config& cfg, OmpLoop& omp) {
     // reset
     for (auto &b : S.p) b.force = {0,0,0};
 
@@ -194,6 +197,9 @@ void write_state_tsv(const NBodyState& S) {
 int main(int argc, char** argv) {
     ios::sync_with_stdio(false);
 
+    OmpLoop omp;
+    omp.setNbThread(11);
+
     string mode = argv[1];
     Config cfg;
     cfg.dt = stod(argv[2]);
@@ -231,19 +237,19 @@ int main(int argc, char** argv) {
         }
     }
 
-    // initial forces + initial dump
-    compute_forces(S, cfg);
 
+    compute_forces(S, cfg, omp);
+    write_state_tsv(S);
 
     for (int step=1; step<=cfg.steps; ++step) {
         // 1) forces at current positions
-        compute_forces(S, cfg);
+        compute_forces(S, cfg, omp);
         // 2) integrate
         step_euler(S, cfg);
         // 3) output occasionally
         if (step % cfg.dump_every == 0) {
             // recompute forces for logging (forces correspond to printed state)
-            compute_forces(S, cfg);
+            compute_forces(S, cfg, omp);
             write_state_tsv(S);
         }
     }

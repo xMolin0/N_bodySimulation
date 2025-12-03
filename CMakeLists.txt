@@ -4,5 +4,11 @@ project(N_bodySimulation)
 set(CMAKE_CXX_STANDARD 20)
 
 add_executable(N_bodySimulation
-        main.cpp
+        src/main.cpp
+        tooling/omp_loop.hpp
+        tooling/omp_tasking.hpp
+        tooling/seq_loop.hpp
+        tooling/seq_tasking.hpp
+        src/cudaNBody.cpp
+        src/cudaNBody.cpp
 )
