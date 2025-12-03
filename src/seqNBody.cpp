@@ -1,3 +1,6 @@
+//
+// Created by Xavier Molina on 12/3/25.
+//
 #include <iostream>
 #include <vector>
 #include <fstream>
@@ -6,9 +9,6 @@
 #include <cmath>
 #include <random>
 #include <iomanip>
-
-
-#include "../tooling/omp_loop.hpp"
 
 using namespace std;
 
@@ -144,52 +144,29 @@ static inline Vec3 mul(const Vec3&a,double s){ return {a.x*s,a.y*s,a.z*s}; }
 
 static inline double norm2(const Vec3& v){ return v.x*v.x + v.y*v.y + v.z*v.z; }
 
-void compute_forces(NBodyState& S, const Config& cfg, OmpLoop& omp) {
+void compute_forces(NBodyState& S, const Config& cfg) {
     // reset
     for (auto &b : S.p) b.force = {0,0,0};
 
     const double eps2 = cfg.softening * cfg.softening;
+
     int N = (int)S.size();
-
-    // TLS
-    struct ThreadLocal {
-        std::vector<Vec3> local_forces;
-    };
-
-    omp.parfor<ThreadLocal>(
-        0, N, 1,
-
-        // BEFORE
-        [N](ThreadLocal& tls) {
-            tls.local_forces.resize(N, {0, 0, 0});
-        },
-
-        // LOOP BODY
-        [&](size_t i, ThreadLocal& tls) {
-            for (int j = i+1; j < N; j++) {
-                Vec3 rij = sub(S.p[j].pos, S.p[i].pos);
-                double r2 = norm2(rij) + eps2;
-                double r = sqrt(r2);
-                if (r == 0) continue;
-
-                double Fmag = cfg.G * S.p[i].m * S.p[j].m / r2;
-                Vec3 rhat = mul(rij, 1.0/r);
-                Vec3 Fij = mul(rhat, Fmag);
-
-
-                tls.local_forces[i] = add(tls.local_forces[i], Fij);
-                tls.local_forces[j] = sub(tls.local_forces[j], Fij);
-            }
-        },
-
-        // AFTER
-        [&S](ThreadLocal& tls) {
-
-            for (size_t i = 0; i < S.size(); i++) {
-                S.p[i].force = add(S.p[i].force, tls.local_forces[i]);
-            }
+    for (int i=0;i<N;i++) {
+        for (int j=i+1;j<N;j++) {
+            Vec3 rij = sub(S.p[j].pos, S.p[i].pos);
+            double r2 = norm2(rij) + eps2;
+            double r  = sqrt(r2);
+            if (r == 0) continue; // avoid divide-by-zero (identical positions)
+            // |F| = G m1 m2 / r^2
+            double Fmag = cfg.G * S.p[i].m * S.p[j].m / r2;
+            // unit vector r_hat = rij / r
+            Vec3 rhat = mul(rij, 1.0/r);
+            Vec3 Fij  = mul(rhat, Fmag);
+            // apply equal and opposite
+            S.p[i].force = add(S.p[i].force, Fij);
+            S.p[j].force = sub(S.p[j].force, Fij);
         }
-    );
+    }
 }
 
 // --- integrate one step (Euler: v += a*dt; x += v*dt) ---
@@ -214,11 +191,10 @@ void write_state_tsv(const NBodyState& S) {
     cout << '\n';
 }
 
+
 int main(int argc, char** argv) {
     ios::sync_with_stdio(false);
 
-    OmpLoop omp;
-    omp.setNbThread(11);
 
     string mode = argv[1];
     Config cfg;
@@ -258,18 +234,16 @@ int main(int argc, char** argv) {
     }
 
 
-    compute_forces(S, cfg, omp);
+    compute_forces(S, cfg);
     write_state_tsv(S);
 
     for (int step=1; step<=cfg.steps; ++step) {
         // 1) forces at current positions
-        compute_forces(S, cfg, omp);
+        compute_forces(S, cfg);
         // 2) integrate
         step_euler(S, cfg);
-        // 3) output occasionally
+
         if (step % cfg.dump_every == 0) {
-            // recompute forces for logging (forces correspond to printed state)
-            compute_forces(S, cfg, omp);
             write_state_tsv(S);
         }
     }

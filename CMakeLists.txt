@@ -11,4 +11,5 @@ add_executable(N_bodySimulation
         tooling/seq_tasking.hpp
         src/cudaNBody.cu
         src/cudaNBody.cu
+        src/seqNBody.cpp
 )
