@@ -119,7 +119,7 @@ void integrate(double* x, double* y, double* z,
 
 void init_solar(simulation& s) {
     const int N = 10;
-    s = simulation(N); // allocate GPU memory
+
 
     // CPU arrays for masses, positions, velocities
     double h_mass[N] = {
@@ -230,34 +230,29 @@ int main(int argc, char* argv[]) {
     int block = std::atol(argv[5]);
 
 
-    simulation s(1);
-    //parse command line
-    size_t N = std::atol(argv[1]); //return 0 if not a number
-    if (N > 0) {
-        s = simulation(N);
+    size_t N = std::atol(argv[1]);
+    if (N == 0) N = 10;  // Default size for planet mode
+
+    simulation s(N);
+
+    if (std::atol(argv[1]) > 0) {
         random_init(s);
-    } else {
-        std::string inputparam = argv[1];
-        if (inputparam == "planet") {
-            init_solar(s);
-        } else{
-            //load_from_file(s, inputparam);
-        }
+    } else if ( argv[1] == "planet") {
+        init_solar(s);
     }
 
-
-    int grid = (N + block - 1) / block;
+    int grid = (s.nbpart + block - 1) / block;
     for (__uint32_t step = 0; step < steps; step++) {
         if (step % printevery == 0) dump_state(s, s.nbpart);
 
-        reset_forces<<<grid, block>>>(s.d_fx, s.d_fy, s.d_fz, N);
+        reset_forces<<<grid, block>>>(s.d_fx, s.d_fy, s.d_fz, s.nbpart);
         compute_forces<<<grid, block>>>(s.d_mass, s.d_x, s.d_y, s.d_z,
-                                        s.d_fx, s.d_fy, s.d_fz, N);
+                                        s.d_fx, s.d_fy, s.d_fz, s.nbpart);
         integrate<<<grid, block>>>(s.d_x, s.d_y, s.d_z,
                                    s.d_vx, s.d_vy, s.d_vz,
                                    s.d_fx, s.d_fy, s.d_fz,
                                    s.d_mass,
-                                   dt, N);
+                                   dt, s.nbpart);
     }
 
 
