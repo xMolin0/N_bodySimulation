@@ -1,7 +1,3 @@
-# ============================
-#  COMPILERS & FLAGS
-# ============================
-
 # CPU build (OpenMP)
 CXX = g++-15
 CXXFLAGS = -O2 -std=c++17 -Wall -fopenmp
@@ -10,42 +6,37 @@ CXXFLAGS = -O2 -std=c++17 -Wall -fopenmp
 NVCC = nvcc
 NVCCFLAGS = -O2 -std=c++17 -arch=sm_61
 
-# ============================
-#  TARGETS
-# ============================
 
 CPU_TARGET = nbody_omp
 GPU_TARGET = nbody_cuda
+SEQ_TARGET = nbody_seq
 
-CPU_SRC = src/main.cpp
+CPU_SRC = src/ompNBody.cpp
 GPU_SRC = src/cudaNBody.cu
+SEQ_SRC = src/seqNBody.cpp
 
 .PHONY: all omp cuda clean run_omp run_cuda srun_cuda
 
-# Default: build everything
-all: omp cuda
 
-# ============================
-#  CPU (OpenMP) BUILD
-# ============================
+all: omp cuda seq
+
+seq: $(SEQ_TARGET)
+
+$(SEQ_TARGET): $(SEQ_SRC)
+	$(CXX) $(CXXFLAGS) $(SEQ_SRC) -o $(SEQ_TARGET)
+
 
 omp: $(CPU_TARGET)
 
 $(CPU_TARGET): $(CPU_SRC)
 	$(CXX) $(CXXFLAGS) $(CPU_SRC) -o $(CPU_TARGET)
 
-# ============================
-#  GPU (CUDA) BUILD
-# ============================
 
 cuda: $(GPU_TARGET)
 
 $(GPU_TARGET): $(GPU_SRC)
 	$(NVCC) $(NVCCFLAGS) $(GPU_SRC) -o $(GPU_TARGET)
 
-# ============================
-#  RUN TARGETS
-# ============================
 
 # --- Run CPU version locally ---
 run_omp: $(CPU_TARGET)
