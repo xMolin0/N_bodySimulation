@@ -11,4 +11,6 @@ module load cuda/12.4
 make cuda
 
 # === ACTUAL COMMAND TO EXECUTE ===
+date
 ./nbody_cuda 10000 200 5000000 10000 > solar_cuda.out
+date
