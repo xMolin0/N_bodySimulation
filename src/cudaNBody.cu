@@ -148,7 +148,7 @@ void init_solar(simulation& s) {
     cudaMemcpy(s.d_vz, h_vz, N*sizeof(double), cudaMemcpyHostToDevice);
 }
 
-void dump_state(simulation& s, int N) {
+void dump_state(simulation& s, size_t N) {
     std::vector<double> mass(N), x(N), y(N), z(N);
     std::vector<double> vx(N), vy(N), vz(N);
     std::vector<double> fx(N), fy(N), fz(N);
@@ -247,7 +247,7 @@ int main(int argc, char* argv[]) {
 
     int grid = (N + block - 1) / block;
     for (__uint32_t step = 0; step < steps; step++) {
-        if (step % printevery == 0) dump_state(s, N);
+        if (step % printevery == 0) dump_state(s, s.nbpart);
 
         reset_forces<<<grid, block>>>(s.d_fx, s.d_fy, s.d_fz, N);
         compute_forces<<<grid, block>>>(s.d_mass, s.d_x, s.d_y, s.d_z,

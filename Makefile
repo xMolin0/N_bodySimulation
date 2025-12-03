@@ -1,5 +1,5 @@
 # CPU build (OpenMP)
-CXX = g++-15
+CXX = g++
 CXXFLAGS = -O2 -std=c++17 -Wall -fopenmp
 
 # GPU build (CUDA)
@@ -38,17 +38,16 @@ $(GPU_TARGET): $(GPU_SRC)
 	$(NVCC) $(NVCCFLAGS) $(GPU_SRC) -o $(GPU_TARGET)
 
 
-# --- Run CPU version locally ---
+
 run_omp: $(CPU_TARGET)
-	./$(CPU_TARGET) sem 200 5000000 10000 > solar_omp.tsv
+	./$(CPU_TARGET) sem 200 900000000 10000 > solar_omp.tsv
 	python3 plot.py solar_omp.tsv solar_omp.pdf 10000
 
-# --- Run CUDA version locally (ONLY if machine has a GPU) ---
+
 run_cuda: $(GPU_TARGET)
 	./$(GPU_TARGET) sem 200 5000000 10000 > solar_cuda.tsv
 	python3 plot.py solar_cuda.tsv solar_cuda.pdf 10000
 
-# --- Run CUDA version through SLURM on Centaurus ---
 srun_cuda: $(GPU_TARGET)
 	srun --partition=GPU --gres=gpu:1 ./$(GPU_TARGET) sem 200 5000000 10000 > solar_cuda.tsv
 	python3 plot.py solar_cuda.tsv solar_cuda.pdf 10000
