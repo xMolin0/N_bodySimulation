@@ -6,6 +6,7 @@
 #include <cmath>
 #include <vector>
 #include <random>
+#include <cuda_runtime.h>
 
 __device__ double G_dev = 6.674e-11;
 

@@ -18,7 +18,7 @@ CPU_TARGET = nbody_omp
 GPU_TARGET = nbody_cuda
 
 CPU_SRC = src/main.cpp
-GPU_SRC = src/cudaNBody.cpp    
+GPU_SRC = src/cudaNBody.cpp
 
 .PHONY: all omp cuda clean run_omp run_cuda srun_cuda
 
@@ -62,9 +62,6 @@ srun_cuda: $(GPU_TARGET)
 	srun --partition=GPU --gres=gpu:1 ./$(GPU_TARGET) sem 200 5000000 10000 > solar_cuda.tsv
 	python3 plot.py solar_cuda.tsv solar_cuda.pdf 10000
 
-# ============================
-#  CLEAN
-# ============================
 
 clean:
 	rm -f $(CPU_TARGET) $(GPU_TARGET) *.o *.tsv *.pdf
