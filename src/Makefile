@@ -1,23 +1,70 @@
-# Makefile for N-Body Simulation
+# ============================
+#  COMPILERS & FLAGS
+# ============================
 
+# CPU build (OpenMP)
 CXX = g++-15
 CXXFLAGS = -O2 -std=c++17 -Wall -fopenmp
 
-TARGET = nbody
-SRC = main.cpp
+# GPU build (CUDA)
+NVCC = nvcc
+NVCCFLAGS = -O2 -std=c++17 -arch=sm_61
 
-.PHONY: all clean run
+# ============================
+#  TARGETS
+# ============================
 
-all: $(TARGET)
+CPU_TARGET = nbody_omp
+GPU_TARGET = nbody_cuda
 
-$(TARGET): $(SRC)
-	$(CXX) $(CXXFLAGS) $(SRC) -o $(TARGET)
+CPU_SRC = main.cpp
+GPU_SRC = main.cu     # <--- Your CUDA source file
 
-run: $(TARGET)
-	date
-	./$(TARGET) sem 200 5000000 10000 > solar.tsv
-	date
-	python3 plot.py solar.tsv solar.pdf 10000
+.PHONY: all omp cuda clean run_omp run_cuda srun_cuda
+
+# Default: build everything
+all: omp cuda
+
+# ============================
+#  CPU (OpenMP) BUILD
+# ============================
+
+omp: $(CPU_TARGET)
+
+$(CPU_TARGET): $(CPU_SRC)
+	$(CXX) $(CXXFLAGS) $(CPU_SRC) -o $(CPU_TARGET)
+
+# ============================
+#  GPU (CUDA) BUILD
+# ============================
+
+cuda: $(GPU_TARGET)
+
+$(GPU_TARGET): $(GPU_SRC)
+	$(NVCC) $(NVCCFLAGS) $(GPU_SRC) -o $(GPU_TARGET)
+
+# ============================
+#  RUN TARGETS
+# ============================
+
+# --- Run CPU version locally ---
+run_omp: $(CPU_TARGET)
+	./$(CPU_TARGET) sem 200 5000000 10000 > solar_omp.tsv
+	python3 plot.py solar_omp.tsv solar_omp.pdf 10000
+
+# --- Run CUDA version locally (ONLY if machine has a GPU) ---
+run_cuda: $(GPU_TARGET)
+	./$(GPU_TARGET) sem 200 5000000 10000 > solar_cuda.tsv
+	python3 plot.py solar_cuda.tsv solar_cuda.pdf 10000
+
+# --- Run CUDA version through SLURM on Centaurus ---
+srun_cuda: $(GPU_TARGET)
+	srun --partition=GPU --gres=gpu:1 ./$(GPU_TARGET) sem 200 5000000 10000 > solar_cuda.tsv
+	python3 plot.py solar_cuda.tsv solar_cuda.pdf 10000
+
+# ============================
+#  CLEAN
+# ============================
 
 clean:
-	rm -f $(TARGET) *.o *.tsv *.pdf
+	rm -f $(CPU_TARGET) $(GPU_TARGET) *.o *.tsv *.pdf
