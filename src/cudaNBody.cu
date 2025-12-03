@@ -153,6 +153,7 @@ void dump_state(simulation& s, size_t N) {
     std::vector<double> vx(N), vy(N), vz(N);
     std::vector<double> fx(N), fy(N), fz(N);
 
+    cudaMemcpy(mass.data(), s.d_mass, N*sizeof(double), cudaMemcpyDeviceToHost);
     cudaMemcpy(x.data(), s.d_x, N*sizeof(double), cudaMemcpyDeviceToHost);
     cudaMemcpy(y.data(), s.d_y, N*sizeof(double), cudaMemcpyDeviceToHost);
     cudaMemcpy(z.data(), s.d_z, N*sizeof(double), cudaMemcpyDeviceToHost);
