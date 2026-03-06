@@ -1,8 +1,10 @@
-# N-Body Simulation in C++
-
-This project is a simple **N-body gravitational simulator** written in C++.  
-It computes the gravitational forces between particles (planets, moons, stars, or random bodies) and integrates their motion forward in time. Output is written in a `.tsv` format so it can be visualized with a provided Python plotting script.
-
+## N-Body Simulation (CPU, OpenMP, CUDA)
+This project implements an N-body gravitational simulation in C++ with three different execution models to explore parallel performance and scalability:
+Sequential CPU implementation
+Multi-threaded CPU implementation using OpenMP
+GPU-accelerated implementation using CUDA
+The goal of the project is to study how different hardware architectures and parallelization strategies impact the performance of an O(N²) physics simulation.
+The simulator computes gravitational forces between bodies (planets, moons, stars, or randomly generated particles) and integrates their motion forward in time.
 
 ## Features
 - Particle state includes: **mass, position, velocity, force**.
