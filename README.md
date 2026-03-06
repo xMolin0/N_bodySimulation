@@ -11,7 +11,6 @@ The simulator computes gravitational forces between bodies (planets, moons, star
 - Built-in initialization modes:
   - `sem` → Sun–Earth–Moon toy system
   - Random bodies (user chooses `N`)
-  - Load from `.tsv` file (same format as output)
 - Gravitational force calculation with softening factor to prevent singularities.
 - Euler integration of motion (`v += a*dt; x += v*dt`).
 - Output in `.tsv` format for plotting with Python.
