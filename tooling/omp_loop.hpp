@@ -75,17 +75,17 @@ public:
                std::function<void(size_t, TLS&)> f,
                std::function<void(TLS&)> after
                ) {
-#pragma omp parallel num_threads(nbthread)
+    #pragma omp parallel num_threads(nbthread)
     {
       TLS tls;
       before(tls);
       
-#pragma omp for schedule(dynamic, granularity) 
-      for (size_t i=beg; i<end; i+= increment) {
-	f(i, tls);
-      }
-#pragma omp critical
-      after(tls);
+      #pragma omp for schedule(dynamic, granularity)
+        for (size_t i=beg; i<end; i+= increment) {
+	        f(i, tls);
+        }
+      #pragma omp critical
+        after(tls);
     }
   }
 

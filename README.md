@@ -31,4 +31,12 @@ cd N-bodySimulation
 make run
 ```
 
+### Example Workflow
+```bash
+make omp
+make run_omp
+open solar_omp.pdf
+```
+This builds the OpenMP version, runs the simulation, and generates the final visualization.
+
 *Parameters for the executable can be changed in the makefile.
